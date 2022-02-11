@@ -35,7 +35,7 @@ func Println(buf []byte) {
 		printer(buf)
 	}
 
-	fmt.Printf("\n%c[1;40;31m报文总长度：%d  %c[0m\n", 0x1B, n, 0x1B)
+	fmt.Printf("\n%c[1;40;32m报文总长度：%d  %c[0m\n", 0x1B, n, 0x1B)
 
 }
 func formatStingSlice(data []byte) []string {

@@ -1,24 +1,24 @@
 package main
 
 import (
-	"github.com/yysel/gutil/buffer"
+	"bytes"
+	"fmt"
 )
 
 func main() {
-	b := buffer.Buffer{}
-	buf := []byte{1, 2, 3, 4}
-	//fmt.Println(byte(uint8(2222)))
-	//b.Println()
-	b.WriteBytes(buf).
-		//Println().
-		ReWrite(3, []byte{0, 0, 0, 1}).
-		Println()
-	//a := [5]byte{}
-	//b.Write(a[:])
-	//b.Println()
-	//b.Write(buffer.Int2LittleBytes(2888, 4))
-	//b.Println()
-	//a := make([]byte, 4)
-	//binary.LittleEndian.PutUint32(a, 2888)
+	//buffer.New(buffer.LittleEndian).
+	//	//WriteSting("大声道").
+	//	//WriteIntFixedLength(1, 1).
+	//	//WriteManyByte(1, 1, 1).
+	//	//WriteManyByte(1, 1, 1).
+	//	//WriteMany([]byte{0, 2, 3, 4, 's'}).
+	//	//WriteStingWithLen("22222", 2).
+	//	WriteSting("大声道").
+	//	WriteLength(2).
+	//	Println()
+	fmt.Println(bytes.Compare([]byte{1}, []byte{1}))
+	//buffer.New(buffer.LittleEndian).
+	//	WriteManyByte(1, 1, 1, 1).
+	//	InsertWrite(1, []byte{0, 0}).Println()
 
 }
