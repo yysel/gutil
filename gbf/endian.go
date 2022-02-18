@@ -11,7 +11,7 @@ type bigEndian struct {
 var Le = littleEndian{}
 var Be = bigEndian{}
 
-func (b *bigEndian) ToBytes(num, length int) (bf []byte) {
+func (b *bigEndian) ToBytes(num interface{}, length int) (bf []byte) {
 	bf, b.Error = intToBigBytes(num, length)
 	return bf
 }
@@ -41,7 +41,7 @@ func (b *bigEndian) ToUint(bt []byte) uint {
 	return uint(num)
 }
 
-func (b *littleEndian) ToBytes(num, length int) (bf []byte) {
+func (b *littleEndian) ToBytes(num interface{}, length int) (bf []byte) {
 	bf, b.Error = intToLittleBytes(num, length)
 	return bf
 }
