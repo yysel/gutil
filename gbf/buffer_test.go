@@ -1,4 +1,4 @@
-package buffer
+package gbf
 
 import (
 	"bytes"
@@ -249,5 +249,26 @@ func TestBuffer_HasError(t *testing.T) {
 	}
 	if !b.HasError() {
 		t.Error()
+	}
+}
+
+func TestBuffer_WriteTop(t *testing.T) {
+	b := New(BigEndian).WriteManyByte(1, 2, 3, 4)
+	b.WriteTop([]byte{1, 1})
+	if bytes.Compare(b.Bytes(), []byte{1, 1, 1, 2, 3, 4}) != 0 {
+		t.Error()
+	}
+}
+
+func TestBuffer_WriteWord(t *testing.T) {
+	m := []byte{
+		0x6d, 0x00, 0x61, 0x00, 0x73, 0x00, 0x74, 0x00,
+		0x65, 0x00, 0x72, 0x00,
+	}
+	b := New(BigEndian).WriteWord("master")
+	if bytes.Compare(b.Bytes(), m) != 0 {
+		Println(b.Bytes())
+		t.Error()
+
 	}
 }

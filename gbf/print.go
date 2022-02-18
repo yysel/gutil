@@ -1,4 +1,4 @@
-package buffer
+package gbf
 
 import "fmt"
 
