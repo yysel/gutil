@@ -152,8 +152,8 @@ func bBytesToUint64(b []byte) (uint64, error) {
 func lBytesToUint64(b []byte) (uint64, error) {
 	c := 8 - len(b)
 	if c > 0 {
-		d := make([]byte, c)
-		b = append(b, d...)
+		d := make([]byte, 8)
+		copy(b, d)
 	} else { //长度大于8位
 		b = b[0:8]
 	}
