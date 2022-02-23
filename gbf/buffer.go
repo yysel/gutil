@@ -164,19 +164,6 @@ func (b *Buffer) WriteTop(bf []byte) *Buffer {
 	return b.InsertWrite(0, bf)
 }
 
-func (b *Buffer) WriteWord(s string) *Buffer {
-	return b.WriteBytes(stringToWord(s))
-}
-
-func (b *Buffer) WriteWordWithLength(s string, l int) *Buffer {
-	return b.WriteIntFixedLength(len(s), l).WriteWord(s)
-}
-
-func stringToWord(s string) []byte {
-	b := []byte{}
-	for _, v := range s {
-		bf, _ := intToLittleBytes(uint32(v), 2)
-		b = append(b, bf...)
-	}
-	return b
+func (b *Buffer) WriteBytesWithLength(c []byte, l int) *Buffer {
+	return b.WriteIntFixedLength(len(c), l).WriteBytes(c)
 }
