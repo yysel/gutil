@@ -1,5 +1,12 @@
 package gbf
 
+type Endianness bool
+
+const (
+	BigEndian    Endianness = false
+	LittleEndian Endianness = true
+)
+
 type littleEndian struct {
 	Error error
 }

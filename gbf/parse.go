@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-func autoParseUintBytes(num uint, order bool) ([]byte, error) {
+func autoParseUintBytes(num uint, order Endianness) ([]byte, error) {
 	switch {
 	case num <= math.MaxUint8:
 		return uint2Bytes(num, 1, order)
@@ -30,7 +30,7 @@ func IntToBBytes(num interface{}) ([]byte, error) {
 	return intToBytes(num, BigEndian)
 }
 
-func intToBytes(num interface{}, order bool) ([]byte, error) {
+func intToBytes(num interface{}, order Endianness) ([]byte, error) {
 	p := func(n uint, l int) ([]byte, error) {
 		return uint2Bytes(n, l, order)
 	}
@@ -68,10 +68,10 @@ func intToBigBytes(num interface{}, length int) ([]byte, error) {
 }
 
 // uint2Bytes  uint类型,转为指定排序端法，转指定长度的bytes数组,
-func uint2Bytes(num uint, length int, order bool) ([]byte, error) {
+func uint2Bytes(num uint, length int, order Endianness) ([]byte, error) {
 	var orderMethod binary.ByteOrder
 	orderMethod = binary.LittleEndian
-	if order {
+	if order == false {
 		orderMethod = binary.BigEndian
 	}
 	a := make([]byte, length)
@@ -93,7 +93,7 @@ func uint2Bytes(num uint, length int, order bool) ([]byte, error) {
 		if length < 8 {
 			a = make([]byte, 8)
 			orderMethod.PutUint64(a, uint64(num))
-			if order {
+			if order == BigEndian {
 				a = a[8-length : 8]
 			} else {
 				a = a[0:length]
@@ -107,7 +107,7 @@ func uint2Bytes(num uint, length int, order bool) ([]byte, error) {
 	return a, e
 }
 
-func anyType2Bytes(num interface{}, length int, order bool) ([]byte, error) {
+func anyType2Bytes(num interface{}, length int, order Endianness) ([]byte, error) {
 	switch v := num.(type) {
 	case int8:
 		return uint2Bytes(uint(v), length, order)

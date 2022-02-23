@@ -3,20 +3,24 @@ package gbf
 import (
 	"bytes"
 	"fmt"
+	"unicode/utf8"
 )
 
+type CharSet string
+
 const (
-	BigEndian    bool = true
-	LittleEndian bool = false
+	UTF8  = "utf8"
+	UTF16 = "utf16"
 )
 
 type Buffer struct {
-	order bool //true 大端法 false 小端法
+	order Endianness //true 大端法 false 小端法
 	error []error
 	bytes.Buffer
+	charset CharSet
 }
 
-func New(order bool) *Buffer {
+func New(order Endianness) *Buffer {
 	return &Buffer{
 		order: order,
 	}
@@ -27,7 +31,7 @@ func (b *Buffer) Print() *Buffer {
 	return b
 }
 
-func (b *Buffer) SetOrder(order bool) *Buffer {
+func (b *Buffer) SetOrder(order Endianness) *Buffer {
 	b.order = order
 	return b
 }
@@ -83,7 +87,21 @@ func (b *Buffer) WriteString(s string) *Buffer {
 
 // WriteStringWithLen 写入一个字符串，并在其前部写入字符串长度字段，l指定长度字段的字节数
 func (b *Buffer) WriteStringWithLen(s string, l int) *Buffer {
-	b.WriteIntFixedLength(len(s), l).WriteString(s)
+	if b.charset == UTF16 {
+		b.WriteIntFixedLength(len(s), l).WriteBytes(Utf8StingToUtf16Bytes(s, b.order))
+	} else {
+		b.WriteIntFixedLength(len(s), l).WriteString(s)
+	}
+	return b
+}
+
+func (b *Buffer) WriteStringWithCharLen(s string, l int) *Buffer {
+	length := utf8.RuneCountInString(s)
+	if b.charset == UTF16 {
+		b.WriteIntFixedLength(length, l).WriteBytes(Utf8StingToUtf16Bytes(s, b.order))
+	} else {
+		b.WriteIntFixedLength(length, l).WriteString(s)
+	}
 	return b
 }
 

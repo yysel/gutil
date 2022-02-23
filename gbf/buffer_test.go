@@ -259,16 +259,3 @@ func TestBuffer_WriteTop(t *testing.T) {
 		t.Error()
 	}
 }
-
-func TestBuffer_WriteWord(t *testing.T) {
-	m := []byte{
-		0x6d, 0x00, 0x61, 0x00, 0x73, 0x00, 0x74, 0x00,
-		0x65, 0x00, 0x72, 0x00,
-	}
-	b := New(BigEndian).WriteWord("master")
-	if bytes.Compare(b.Bytes(), m) != 0 {
-		Println(b.Bytes())
-		t.Error()
-
-	}
-}
