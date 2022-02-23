@@ -138,7 +138,7 @@ func TestBuffer_SetOrder(t *testing.T) {
 		b.Println()
 		t.Error()
 	}
-	b.SetOrder(BigEndian).WriteInt(256)
+	b.SetEndianness(BigEndian).WriteInt(256)
 	if bytes.Compare(b.Bytes(), []byte{0, 1, 1, 0}) != 0 {
 		b.Println()
 		t.Error()
@@ -257,5 +257,62 @@ func TestBuffer_WriteTop(t *testing.T) {
 	b.WriteTop([]byte{1, 1})
 	if bytes.Compare(b.Bytes(), []byte{1, 1, 1, 2, 3, 4}) != 0 {
 		t.Error()
+	}
+}
+
+func TestBuffer_WriteString2(t *testing.T) {
+	type d struct {
+		value string
+		en    Endianness
+		test  []byte
+	}
+	l := []d{
+		{"sa", BigEndian, []byte{0, 0x73, 0, 0x61}},
+		{"sa", LittleEndian, []byte{0x73, 00, 0x61, 00}},
+		{"测试", BigEndian, []byte{0x6d, 0x4b, 0x8b, 0xd5}},
+		{"测试", LittleEndian, []byte{0x4b, 0x6d, 0xd5, 0x8b}},
+	}
+	for _, v := range l {
+		b := New(v.en).SetCharset(UTF16).WriteString(v.value)
+		if bytes.Compare(b.Bytes(), v.test) != 0 {
+			b.Println()
+			t.Error()
+		}
+	}
+}
+
+func TestBuffer_WriteStringWithCharLen(t *testing.T) {
+	type d struct {
+		value   string
+		length  int
+		charset CharSet
+		test    []byte
+	}
+	l := []d{
+		{"sa", 1, UTF8, []byte{2, 0x73, 0x61}},
+		{"sa", 1, UTF16, []byte{2, 0, 0x73, 0, 0x61}},
+		{"测试", 1, UTF8, []byte{2, 0xe6, 0xb5, 0x8b, 0xe8, 0xaf, 0x95}},
+		{"测试", 1, UTF16, []byte{2, 0x6d, 0x4b, 0x8b, 0xd5}},
+	}
+	for _, v := range l {
+		b := New(BigEndian).SetCharset(v.charset).WriteStringWithCharLen(v.value, v.length)
+		if bytes.Compare(b.Bytes(), v.test) != 0 {
+			b.Println()
+			t.Error()
+		}
+	}
+
+	s := []d{
+		{"sa", 1, UTF8, []byte{2, 0x73, 0x61}},
+		{"sa", 1, UTF16, []byte{4, 0, 0x73, 0, 0x61}},
+		{"测试", 1, UTF8, []byte{6, 0xe6, 0xb5, 0x8b, 0xe8, 0xaf, 0x95}},
+		{"测试", 1, UTF16, []byte{4, 0x6d, 0x4b, 0x8b, 0xd5}},
+	}
+	for _, v := range s {
+		b := New(BigEndian).SetCharset(v.charset).WriteStringWithLen(v.value, v.length)
+		if bytes.Compare(b.Bytes(), v.test) != 0 {
+			b.Println()
+			t.Error()
+		}
 	}
 }

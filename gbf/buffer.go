@@ -14,15 +14,16 @@ const (
 )
 
 type Buffer struct {
-	order Endianness //true 大端法 false 小端法
-	error []error
+	endianness Endianness //true 大端法 false 小端法
+	error      []error
 	bytes.Buffer
 	charset CharSet
 }
 
-func New(order Endianness) *Buffer {
+func New(endianness Endianness) *Buffer {
 	return &Buffer{
-		order: order,
+		endianness: endianness,
+		charset:    UTF8,
 	}
 }
 func (b *Buffer) Print() *Buffer {
@@ -31,8 +32,13 @@ func (b *Buffer) Print() *Buffer {
 	return b
 }
 
-func (b *Buffer) SetOrder(order Endianness) *Buffer {
-	b.order = order
+func (b *Buffer) SetEndianness(endianness Endianness) *Buffer {
+	b.endianness = endianness
+	return b
+}
+
+func (b *Buffer) SetCharset(charset CharSet) *Buffer {
+	b.charset = charset
 	return b
 }
 
@@ -71,7 +77,7 @@ func (b *Buffer) WritePlaceholder(num int) *Buffer {
 
 // WriteInt 写入一个数值整型，并根据整型的大小调整字节长度
 func (b *Buffer) WriteInt(num interface{}) *Buffer {
-	buf, e := intToBytes(num, b.order)
+	buf, e := intToBytes(num, b.endianness)
 	b.pushError(e)
 	_, e = b.Write(buf)
 	b.pushError(e)
@@ -80,28 +86,30 @@ func (b *Buffer) WriteInt(num interface{}) *Buffer {
 
 // WriteString 写入一个字符串
 func (b *Buffer) WriteString(s string) *Buffer {
-	_, e := b.Write([]byte(s))
-	b.pushError(e)
+	if b.charset == UTF16 {
+		b.WriteBytes(Utf8StingToUtf16Bytes(s, b.endianness))
+	} else {
+		_, e := b.Write([]byte(s))
+		b.pushError(e)
+	}
 	return b
 }
 
 // WriteStringWithLen 写入一个字符串，并在其前部写入字符串长度字段，l指定长度字段的字节数
 func (b *Buffer) WriteStringWithLen(s string, l int) *Buffer {
+	bt := []byte{}
 	if b.charset == UTF16 {
-		b.WriteIntFixedLength(len(s), l).WriteBytes(Utf8StingToUtf16Bytes(s, b.order))
+		bt = Utf8StingToUtf16Bytes(s, b.endianness)
 	} else {
-		b.WriteIntFixedLength(len(s), l).WriteString(s)
+		bt = []byte(s)
 	}
+	b.WriteBytesWithLength(bt, l)
 	return b
 }
 
 func (b *Buffer) WriteStringWithCharLen(s string, l int) *Buffer {
 	length := utf8.RuneCountInString(s)
-	if b.charset == UTF16 {
-		b.WriteIntFixedLength(length, l).WriteBytes(Utf8StingToUtf16Bytes(s, b.order))
-	} else {
-		b.WriteIntFixedLength(length, l).WriteString(s)
-	}
+	b.WriteIntFixedLength(length, l).WriteString(s)
 	return b
 }
 
@@ -118,7 +126,7 @@ func (b *Buffer) WriteLength(l int) *Buffer {
 
 // WriteIntFixedLength 写入一个数值型，并指定存放的字节长度
 func (b *Buffer) WriteIntFixedLength(num interface{}, length int) *Buffer {
-	buf, e := anyType2Bytes(num, length, b.order)
+	buf, e := anyType2Bytes(num, length, b.endianness)
 	b.pushError(e)
 	_, e = b.Write(buf)
 	b.pushError(e)
